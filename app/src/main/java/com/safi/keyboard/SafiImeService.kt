@@ -20,7 +20,7 @@ class SafiImeService : InputMethodService() {
  private val prefs by lazy { getSharedPreferences("safi",Context.MODE_PRIVATE) }; private val shortcuts=linkedMapOf<String,String>(); private val clips=mutableListOf<String>()
  override fun onCreate(){super.onCreate();active=this;theme=prefs.getInt("theme",0).coerceIn(0,palettes.lastIndex);scale=prefs.getFloat("scale",1f).coerceIn(.75f,1.25f);try{val j=JSONObject(prefs.getString("shortcuts","{}")!!);j.keys().forEach{shortcuts[it]=j.getString(it)}}catch(_:Exception){};try{val a=JSONArray(prefs.getString("clips","[]")!!);for(i in 0 until a.length())clips.add(a.getString(i))}catch(_:Exception){} }
  override fun onCreateInputView():View=keyboard()
- private fun keyboard():LinearLayout { val p=palettes[theme]; return LinearLayout(this).apply { orientation=1;setPadding(3,4,3,4);setBackgroundColor(p[0])
+ private fun keyboard():LinearLayout { val p=palettes[theme]; return LinearLayout(this).apply { orientation=1;setPadding(dp(3),dp(4),dp(3),dp(4));setBackgroundColor(p[0])
   val bar=LinearLayout(this@SafiImeService).apply{gravity=Gravity.CENTER}
   listOf("⋯","↶","✎","▤","☺","🌐","🎙","🎨").forEachIndexed{i,s->key(bar,s,p[2],p[1],1f,true){when(i){0->tools();1->currentInputConnection?.deleteSurroundingText(1,0);2->dictionary();3->clipboard();4->emoji();5->{bangla=!bangla;refresh()};6->voice();7->{theme=(theme+1)%palettes.size;prefs.edit().putInt("theme",theme).apply();refresh()}}}}
   addView(bar)
@@ -29,7 +29,8 @@ class SafiImeService : InputMethodService() {
   val b=LinearLayout(this@SafiImeService).apply{gravity=Gravity.CENTER}
   key(b,"?123",p[2],p[5]){symbols=!symbols;refresh()};key(b,"☺",p[2],p[4]){emoji()};key(b,",",p[2],p[1]){put(",")};key(b,"বাংলা/EN",p[2],p[1],1.3f){bangla=!bangla;refresh()};key(b,"space",p[2],p[1],2.4f){if(bangla)convertLast();put(" ")};key(b,".",p[2],p[1]){put(".");expand()};key(b,"↵",p[2],p[5],1.2f){expand();val a=currentInputEditorInfo?.imeOptions?.and(EditorInfo.IME_MASK_ACTION)?:0;if(a!=0)currentInputConnection?.performEditorAction(a) else put("\n")};addView(b)
  } }
- private fun key(row:LinearLayout,label:String,fg:Int,bg:Int,w:Float=1f,small:Boolean=false,act:()->Unit){val v=TextView(this).apply{text=label;textSize=if(small||label.length>3)12f*scale else 18f*scale;gravity=Gravity.CENTER;setTextColor(fg);background=GradientDrawable().apply{setColor(bg);cornerRadius=10f*resources.displayMetrics.density};setPadding(1,if(small)7 else 9,1,if(small)7 else 9);setOnClickListener{act()}};row.addView(v,LinearLayout.LayoutParams(0,(if(small)36 else 43).times(scale).toInt(),w).apply{setMargins(2,3,2,3)})}
+ private fun key(row:LinearLayout,label:String,fg:Int,bg:Int,w:Float=1f,small:Boolean=false,act:()->Unit){val v=TextView(this).apply{text=label;textSize=if(small||label.length>3)12f*scale else 18f*scale;gravity=Gravity.CENTER;setTextColor(fg);background=GradientDrawable().apply{setColor(bg);cornerRadius=10f*resources.displayMetrics.density};setPadding(dp(1),dp(if(small)7 else 9),dp(1),dp(if(small)7 else 9));setOnClickListener{act()}};row.addView(v,LinearLayout.LayoutParams(0,dp(((if(small)36 else 43)*scale).toInt()),w).apply{setMargins(dp(2),dp(3),dp(2),dp(3))})}
+ private fun dp(v:Int):Int=(v*resources.displayMetrics.density).toInt().coerceAtLeast(1)
  private fun put(s:String){currentInputConnection?.commitText(s,1)}
  private fun refresh(){setInputView(keyboard())}
  private fun type(s:String){put(s);suggest()}
