@@ -21,7 +21,7 @@ class SafiImeService : InputMethodService() {
  override fun onCreate(){super.onCreate();active=this;theme=prefs.getInt("theme",0).coerceIn(0,palettes.lastIndex);scale=prefs.getFloat("scale",1f).coerceIn(.75f,1.25f);try{val j=JSONObject(prefs.getString("shortcuts","{}")!!);j.keys().forEach{shortcuts[it]=j.getString(it)}}catch(_:Exception){};try{val a=JSONArray(prefs.getString("clips","[]")!!);for(i in 0 until a.length())clips.add(a.getString(i))}catch(_:Exception){} }
  override fun onCreateInputView():View=keyboard()
  private fun keyboard():LinearLayout { val p=palettes[theme]; return LinearLayout(this).apply { orientation=1;setPadding(3,4,3,4);setBackgroundColor(p[0])
-  val bar=LinearLayout(this).apply{gravity=Gravity.CENTER}
+  val bar=LinearLayout(this@SafiImeService).apply{gravity=Gravity.CENTER}
   listOf("⋯","↶","✎","▤","☺","🌐","🎙","🎨").forEachIndexed{i,s->key(bar,s,p[2],p[1],1f,true){when(i){0->tools();1->currentInputConnection?.deleteSurroundingText(1,0);2->dictionary();3->clipboard();4->emoji();5->{bangla=!bangla;refresh()};6->voice();7->{theme=(theme+1)%palettes.size;prefs.edit().putInt("theme",theme).apply();refresh()}}}}
   addView(bar)
   val rows=if(symbols) listOf(listOf("1","2","3","4","5","6","7","8","9","0"),listOf("@","#","$","%","&","-","+","(",")","/"),listOf("=","*","'",";",":","!","?")) else if(bangla) listOf(listOf("ক","খ","গ","ঘ","ঙ","চ","ছ","জ","ঝ","ঞ"),listOf("ট","ঠ","ড","ঢ","ণ","ত","থ","দ","ধ","ন"),listOf("প","ফ","ব","ভ","ম","য","র","ল","স")) else listOf("qwertyuiop".map{it.toString()},"asdfghjkl".map{it.toString()},"zxcvbnm".map{it.toString()})
